@@ -1,5 +1,6 @@
 # IDE stuff
 .vscode/
+.idea/
 
 # python cache
 *.pyc
