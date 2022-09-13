@@ -45,7 +45,7 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
 
     def authenticate(self, request):
 
-        (token.user, token, new_local) = super(FirebaseAuthentication, self).authenticate(request)
+        (user, token, new_local) = super(FirebaseAuthentication, self).authenticate(request)
 
         # if new_local is True:
         # we can do logic here for create referralTracking record
@@ -57,9 +57,9 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
             # can: user, referral_code
             # api_settings.REQUEST_HOOK_FUNC(request, token.user, new_local)
             request_hook_func = import_string(api_settings.REQUEST_HOOK_FUNC)
-            request_hook_func(request, token.user, new_local)
+            request_hook_func(request, user, new_local)
 
-        return (token.user, token)
+        return (user, token)
 
     def authenticate_credentials(
         self,
