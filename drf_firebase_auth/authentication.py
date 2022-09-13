@@ -111,7 +111,7 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
                     'User account is not currently active.'
                 )
             user.last_login = timezone.now()
-            user.uuid = firebase_user.uid
+            user.provider_uid = firebase_user.uid
             user.save()
         except User.DoesNotExist as e:
             log.error(
@@ -128,7 +128,7 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
                 user = User.objects.create_user(
                     username=username,
                     email=email,
-                    uuid=firebase_user.uid
+                    provider_uid=firebase_user.uid
                 )
                 user.last_login = timezone.now()
                 if (
