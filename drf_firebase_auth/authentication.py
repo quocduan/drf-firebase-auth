@@ -45,16 +45,13 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
 
     def authenticate(self, request):
 
-        (user, token, new_local) = super(FirebaseAuthentication, self).authenticate(request)
+        user_auth_tuple = super(FirebaseAuthentication, self).authenticate(request)
+        if user_auth_tuple is None:
+            return None
 
-        # if new_local is True:
-        # we can do logic here for create referralTracking record
-        # moc mot cai ham o day tu setting
-        # trong ham co truyen vao request
-        # dung de goi o trong nay voi request nhan duoc
-        # logic thi o trong source code cua minh
+        (user, token, new_local) = user_auth_tuple
+
         if api_settings.REQUEST_HOOK_FUNC:
-            # can: user, referral_code
             # api_settings.REQUEST_HOOK_FUNC(request, token.user, new_local)
             request_hook_func = import_string(api_settings.REQUEST_HOOK_FUNC)
             request_hook_func(request, user, new_local)
