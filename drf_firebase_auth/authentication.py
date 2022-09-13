@@ -24,6 +24,7 @@ from .models import (
 )
 from .utils import get_firebase_user_email
 from . import __title__
+from django.utils.module_loading import import_string
 
 log = logging.getLogger(__title__)
 User = get_user_model()
@@ -42,6 +43,24 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
     """
     keyword = api_settings.FIREBASE_AUTH_HEADER_PREFIX
 
+    def authenticate(self, request):
+
+        (token.user, token, new_local) = super(FirebaseAuthentication, self).authenticate(request)
+
+        # if new_local is True:
+        # we can do logic here for create referralTracking record
+        # moc mot cai ham o day tu setting
+        # trong ham co truyen vao request
+        # dung de goi o trong nay voi request nhan duoc
+        # logic thi o trong source code cua minh
+        if api_settings.REQUEST_HOOK_FUNC:
+            # can: user, referral_code
+            # api_settings.REQUEST_HOOK_FUNC(request, token.user, new_local)
+            request_hook_func = import_string(api_settings.REQUEST_HOOK_FUNC)
+            request_hook_func(request, token.user, new_local)
+
+        return (token.user, token)
+
     def authenticate_credentials(
         self,
         token: str
@@ -49,9 +68,9 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
         try:
             decoded_token = self._decode_token(token)
             firebase_user = self._authenticate_token(decoded_token)
-            local_user = self._get_or_create_local_user(firebase_user)
+            local_user, new_local = self._get_or_create_local_user(firebase_user)
             self._create_local_firebase_user(local_user, firebase_user)
-            return (local_user, decoded_token)
+            return (local_user, decoded_token, new_local)
         except Exception as e:
             raise exceptions.AuthenticationFailed(e)
 
@@ -94,13 +113,14 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
     def _get_or_create_local_user(
         self,
         firebase_user: firebase_auth.UserRecord
-    ) -> User:
+    ) -> (User, bool):
         """
         Attempts to return or create a local User from Firebase user data
         """
         email = get_firebase_user_email(firebase_user)
         log.info(f'_get_or_create_local_user - email: {email}')
         user = None
+        new_local = False
         try:
             user = User.objects.get(email=email)
             log.info(
@@ -125,6 +145,7 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
                 f'_get_or_create_local_user - username: {username}'
             )
             try:
+                new_local = True
                 user = User.objects.create_user(
                     username=username,
                     email=email,
@@ -142,7 +163,7 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
                 user.save()
             except Exception as e:
                 raise Exception(e)
-        return user
+        return (user, new_local)
 
     def _create_local_firebase_user(
         self,
