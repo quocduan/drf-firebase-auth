@@ -62,3 +62,7 @@ def map_uuid_to_username(
         return str(uuid.uuid4())
     except Exception as e:
         raise Exception(e)
+
+
+def request_hook_func(request, user, new_local: bool):
+    pass

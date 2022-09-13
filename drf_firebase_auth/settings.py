@@ -6,6 +6,7 @@ from django.conf import settings
 from rest_framework.settings import APISettings
 
 from .utils import map_firebase_uid_to_username
+# from utils import request_hook_func
 
 USER_SETTINGS = getattr(settings, 'DRF_FIREBASE_AUTH', None)
 
@@ -33,7 +34,9 @@ DEFAULTS = {
         os.getenv('FIREBASE_AUTH_EMAIL_VERIFICATION', False),
     # function should accept firebase_admin.auth.UserRecord as argument
     # and return str
-    'FIREBASE_USERNAME_MAPPING_FUNC': map_firebase_uid_to_username
+    'FIREBASE_USERNAME_MAPPING_FUNC': map_firebase_uid_to_username,
+    # allow user write custom logic here
+    'REQUEST_HOOK_FUNC': 'utils.request_hook_func'
 }
 
 # List of settings that may be in string import notation.
