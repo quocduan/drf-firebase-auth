@@ -36,7 +36,7 @@ DEFAULTS = {
     # and return str
     'FIREBASE_USERNAME_MAPPING_FUNC': map_firebase_uid_to_username,
     # allow user write custom logic here
-    'REQUEST_HOOK_FUNC': 'utils.request_hook_func'
+    'REQUEST_HOOK_FUNC': 'drf_firebase_auth.utils.request_hook_func'
 }
 
 # List of settings that may be in string import notation.
