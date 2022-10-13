@@ -131,7 +131,7 @@ class FirebaseAuthentication(authentication.TokenAuthentication):
             # user.provider_uid = firebase_user.uid
             user.save()
         except User.DoesNotExist as e:
-            log.error(
+            log.warning(
                 f'_get_or_create_local_user - User.DoesNotExist: {email}'
             )
             if not api_settings.FIREBASE_CREATE_LOCAL_USER:
